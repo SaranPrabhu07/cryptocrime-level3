@@ -1,0 +1,21 @@
+{
+  "headers": [
+    {
+      "source": "/level3.png",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "image/png"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-transform"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename=\"level3.png\""
+        }
+      ]
+    }
+  ]
+}
