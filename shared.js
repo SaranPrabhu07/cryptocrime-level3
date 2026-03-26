@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════
-//  CRYPTO CRIME — Shared JS
+//  CRYPTO CRIME — Shared JS (Level 3+)
 //  No timer shown to users.
 //  Timestamps are logged server-side via Google Sheets.
 // ═══════════════════════════════════════════════
@@ -38,20 +38,69 @@ async function logToSheet(data) {
   }
 }
 
-// ── LETTER HELPERS ──
+// ── STRUCTURED LETTER STORAGE { row1: [], row2: [] } ──
+function getStructuredLetters() {
+  let raw = localStorage.getItem("collectedLetters");
+  if (!raw) return { row1: [], row2: [] };
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return {
+        row1: Array.isArray(parsed.row1) ? parsed.row1 : [],
+        row2: Array.isArray(parsed.row2) ? parsed.row2 : []
+      };
+    }
+    // Legacy flat array: treat as row1
+    if (Array.isArray(parsed)) return { row1: parsed, row2: [] };
+  } catch(e) {}
+  return { row1: [], row2: [] };
+}
+
+function saveStructuredLetters(data) {
+  localStorage.setItem("collectedLetters", JSON.stringify(data));
+}
+
+// ── FLAT LETTER HELPERS (backwards compat) ──
 function getCollectedLetters() {
-  return JSON.parse(localStorage.getItem("collectedLetters") || "[]");
+  const d = getStructuredLetters();
+  return [...(d.row1 || []), ...(d.row2 || [])];
 }
 
 function addLetter(letter) {
-  const letters = getCollectedLetters();
-  if (!letters.includes(letter)) {
-    letters.push(letter);
-    localStorage.setItem("collectedLetters", JSON.stringify(letters));
-  }
-  return letters;
+  const data = getStructuredLetters();
+  if (!data.row1.includes(letter)) data.row1.push(letter);
+  saveStructuredLetters(data);
+  return getCollectedLetters();
 }
 
+// ── TWO-ROW TILE RENDERER ──
+// Renders 5 tiles each into #row1Tiles and #row2Tiles
+function renderTwoRowTiles() {
+  const data = getStructuredLetters();
+  const r1 = document.getElementById("row1Tiles");
+  const r2 = document.getElementById("row2Tiles");
+
+  function buildTiles(container, letters) {
+    if (!container) return;
+    container.innerHTML = "";
+    for (let i = 0; i < 5; i++) {
+      const tile = document.createElement("div");
+      tile.className = "letter-tile";
+      if (letters[i]) {
+        tile.textContent = letters[i];
+        tile.classList.add("revealed");
+      } else {
+        tile.innerHTML = "<div class='redacted'></div>";
+      }
+      container.appendChild(tile);
+    }
+  }
+
+  buildTiles(r1, data.row1);
+  buildTiles(r2, data.row2);
+}
+
+// ── MINI TILE RENDERER (top-bar) ──
 function renderLetterTiles(miniPrefix, bigPrefix) {
   const letters = getCollectedLetters();
   for (let i = 0; i < 5; i++) {

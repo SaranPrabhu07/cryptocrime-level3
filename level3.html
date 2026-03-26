@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Level 3A — Crypto Crime</title>
+  <title>Level 3B — Crypto Crime</title>
   <link rel="stylesheet" href="style.css"/>
   <style>
     /* CHECK-IN */
@@ -35,6 +35,18 @@
     .checkin-btn { width:100%;padding:0.9rem;font-size:0.85rem;margin-top:0.25rem; }
     .checkin-footer { font-size:0.6rem;color:var(--text-dim);margin-top:1.5rem;letter-spacing:0.15em; }
 
+    /* ANTI-SKIP BLOCKED SCREEN */
+    .blocked-screen {
+      position:fixed;inset:0;z-index:7000;background:var(--bg);
+      display:none;flex-direction:column;align-items:center;justify-content:center;
+      padding:2rem;text-align:center;gap:1.5rem;
+    }
+    .blocked-screen.show { display:flex; }
+    .blocked-stamp { font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.5em;color:var(--red);border:1px solid var(--red);padding:0.35rem 1rem;background:rgba(255,0,60,0.05);display:inline-block; }
+    .blocked-title { font-family:var(--font-display);font-size:2rem;font-weight:900;color:var(--red);letter-spacing:0.05em;line-height:1.2; }
+    .blocked-desc { font-size:0.8rem;color:var(--text-dim);max-width:400px;line-height:1.8; }
+    .blocked-desc strong { color:var(--text); }
+
     /* WELCOME SPLASH */
     .welcome-splash {
       position:fixed;inset:0;z-index:4000;background:var(--bg);
@@ -56,37 +68,21 @@
     }
     .welcome-kudos strong { color:var(--text); }
     .welcome-kudos .name { color:var(--green);font-family:var(--font-display);font-size:0.8em; }
-    .welcome-kudos .criminal { color:var(--red);font-family:var(--font-display);font-size:0.8em; }
     .welcome-kudos .warning { color:var(--yellow); }
     .letters-strip { display:flex;flex-direction:column;align-items:center;gap:0.5rem;animation:fadeUp 0.4s ease 0.3s both; }
     .letters-strip-label { font-size:0.6rem;letter-spacing:0.3em;color:var(--text-dim);text-transform:uppercase; }
     .welcome-btn { padding:1rem 3.5rem;font-family:var(--font-display);font-size:0.95rem;font-weight:700;letter-spacing:0.2em;animation:fadeUp 0.4s ease 0.4s both; }
 
-    /* PART-A UNLOCK OVERLAY (full-screen, like Level 1A riddle) */
-    .part-unlock-screen {
-      position:fixed;inset:0;background:var(--bg);z-index:5000;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      padding:2rem;text-align:center;
-      opacity:0;pointer-events:none;transition:opacity 0.5s;
-    }
-    .part-unlock-screen.show { opacity:1;pointer-events:all; }
-    .part-unlock-eyebrow { font-size:0.58rem;letter-spacing:0.5em;color:var(--text-dim);margin-bottom:1.5rem; }
-    .part-unlock-collected-label { font-size:0.6rem;letter-spacing:0.4em;color:var(--green);margin-bottom:0.4rem; }
-    .part-unlock-letter-big {
-      font-family:var(--font-display);font-size:9rem;font-weight:900;color:var(--green);
-      line-height:1;margin-bottom:0.25rem;animation:glowPulse 2s ease infinite;
-    }
-    @keyframes glowPulse {
-      0%,100% { text-shadow:0 0 20px rgba(0,255,65,0.4); }
-      50%      { text-shadow:0 0 80px rgba(0,255,65,1),0 0 120px rgba(0,255,65,0.5); }
-    }
-    .part-unlock-sublabel { font-size:0.6rem;letter-spacing:0.25em;color:var(--text-dim);margin-bottom:2.5rem; }
-    .part-unlock-instruction {
-      max-width:420px;width:100%;font-size:0.8rem;color:var(--text-dim);line-height:1.9;
-      margin-bottom:2rem;border:1px solid rgba(0,255,247,0.25);padding:1.25rem 1.5rem;
-      background:rgba(0,255,247,0.03);
-    }
-    .part-unlock-instruction strong { color:var(--cyan); }
+    /* UNLOCK SCREEN */
+    .unlock-screen { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.97);z-index:3000;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.5rem;padding:2rem;overflow-y:auto; }
+    .unlock-screen.show { display:flex; }
+    .unlock-title { font-family:var(--font-display);font-size:1.4rem;color:var(--green);font-weight:900;letter-spacing:0.1em;text-shadow:0 0 20px var(--green); }
+    .unlock-location { font-family:var(--font-vt);font-size:1.8rem;color:var(--cyan);text-shadow:0 0 15px var(--cyan);border:1px solid rgba(0,255,247,0.3);padding:0.75rem 2rem;background:rgba(0,255,247,0.04); }
+    .unlock-instruction { font-size:0.8rem;color:var(--text-dim);max-width:420px;line-height:1.8; }
+    .letter-earned { display:flex;flex-direction:column;align-items:center;gap:0.3rem; }
+    .letter-earned-label { font-size:0.65rem;letter-spacing:0.3em;color:var(--text-dim);text-transform:uppercase; }
+    .letter-earned-char { font-family:var(--font-display);font-size:5rem;font-weight:900;color:var(--green);text-shadow:0 0 25px var(--green);animation:letterPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+    @keyframes letterPop { from{opacity:0;transform:scale(0.3) rotate(-10deg)} to{opacity:1;transform:scale(1) rotate(0)} }
 
     /* TOP BAR */
     .top-bar { position:fixed;top:56px;left:0;right:0;z-index:900;background:rgba(2,12,2,0.95);border-bottom:1px solid var(--border);padding:0.5rem 2rem;display:flex;align-items:center;justify-content:space-between;font-size:0.68rem;letter-spacing:0.1em;backdrop-filter:blur(6px); }
@@ -111,29 +107,29 @@
 </head>
 <body>
 
-<!-- PART A UNLOCK OVERLAY -->
-<div class="part-unlock-screen" id="partUnlockScreen">
-  <div class="part-unlock-eyebrow">// PART A — COMPLETE</div>
-  <div class="part-unlock-collected-label">LETTER COLLECTED</div>
-  <div class="part-unlock-letter-big">S</div>
-  <div class="part-unlock-sublabel">THIRD FRAGMENT SECURED</div>
-  <div class="part-unlock-instruction">
-    Your deduction is correct, Detective.<br/><br/>
-    <strong>Go to Rose Garden</strong> on campus.<br/>
-    A QR code is hidden there — scan it to unlock Part B.<br/><br/>
-    <span style="color:var(--yellow);font-size:0.7rem;">⚠ Do not share the QR code with other teams.</span>
+<!-- ANTI-SKIP: shown if Part A not completed -->
+<div class="blocked-screen" id="blockedScreen">
+  <span class="blocked-stamp">⛔ ACCESS DENIED</span>
+  <div class="blocked-title">NOT SO FAST.</div>
+  <div class="blocked-desc">
+    You need to solve <strong>Part A</strong> first.<br/><br/>
+    Head back to the <strong>ECE Department</strong> and decode the steganography image
+    before returning here.
   </div>
+  <a href="index.html" class="btn btn-outline" style="margin-top:1rem;">
+    ← Back to Part A
+  </a>
 </div>
 
-<!-- CHECK-IN -->
+<!-- CHECK-IN (shown if teamId missing but currentLevel is correct) -->
 <div class="checkin-screen" id="checkinScreen" style="display:none;">
   <div class="checkin-card">
-    <div class="checkin-icon">🔎</div>
+    <div class="checkin-icon">🌿</div>
     <div class="checkin-title">AGENT CHECK-IN</div>
-    <div class="checkin-sub">// LEVEL 3A · ECE DEPARTMENT</div>
+    <div class="checkin-sub">// LEVEL 3B · ROSE GARDEN</div>
     <div class="checkin-desc">
-      You've tracked the signal to the ECE Department.<br/>
-      Enter your <strong>Team ID</strong> to log your arrival and begin Round 3.
+      You've made it to the Rose Garden.<br/>
+      Enter your <strong>Team ID</strong> to log your arrival and unlock Part B.
     </div>
     <input type="text" class="checkin-input" id="checkinId"
       placeholder="MK26__" maxlength="8" autocomplete="off"/>
@@ -148,19 +144,17 @@
 <!-- WELCOME SPLASH -->
 <div class="welcome-splash" id="welcomeSplash" style="display:none;">
   <div class="welcome-eyebrow">// MINDKRAFT · CRYPTO CRIME</div>
-  <div class="welcome-title">ROUND <span>03</span></div>
-  <div class="welcome-subtitle">The Hidden Evidence</div>
+  <div class="welcome-title">ROUND <span>03B</span></div>
+  <div class="welcome-subtitle">Look Closer</div>
   <div class="welcome-divider"></div>
   <div class="welcome-kudos">
-    Two rounds down, <strong class="name" id="welcomeName">Agent</strong>. You're still standing.<br/><br/>
-    <span class="criminal">THE CRIMINAL</span> knew you'd make it this far.
-    So the next clue isn't encoded in numbers or shifts —
-    it's <strong>hidden in plain sight</strong>.<br/><br/>
-    Our forensics team intercepted an image from the criminal's encrypted drive.
-    It looks innocent. <span class="warning">It is not.</span><br/><br/>
-    The image carries a secret. But be warned —
-    <strong>not everything hidden is what it seems.</strong>
-    Trust your tools for Part A. Your eyes for Part B.
+    You decoded the image, <strong class="name" id="welcomeName">Agent</strong>. Well done.<br/><br/>
+    But <span style="color:var(--red);font-family:var(--font-display);font-size:0.8em;">THE CRIMINAL</span>
+    doesn't give up that easily. The same image you decoded —
+    it has <strong>another secret</strong>.<br/><br/>
+    This time, <span class="warning">put the tool down.</span>
+    The answer isn't hidden in the data — it's hidden in the design itself.<br/><br/>
+    Look at the image. <strong>Really look.</strong> Your eyes are the only tool you need now.
   </div>
   <div class="letters-strip">
     <div class="letters-strip-label">Collected Letters — <span style="color:var(--green)">Row 1 (Part A)</span></div>
@@ -182,8 +176,23 @@
     <div style="font-size:0.6rem;color:var(--text-dim);margin-top:0.5rem;letter-spacing:0.15em;">Each letter brings you closer to the criminal's name.</div>
   </div>
   <button class="btn btn-primary welcome-btn" onclick="enterLevel()">
-    ↳ Enter Round 3
+    ↳ Enter Round 3B
   </button>
+</div>
+
+<!-- UNLOCK SCREEN -->
+<div class="unlock-screen" id="unlockScreen">
+  <div class="unlock-title">📍 LOCATION UNLOCKED</div>
+  <div class="letter-earned">
+    <div class="letter-earned-label">Letter Collected</div>
+    <div class="letter-earned-char">S</div>
+  </div>
+  <div class="unlock-location">MEDIA CENTRE</div>
+  <div class="unlock-instruction">
+    Head to the <strong style="color:var(--cyan)">Media Centre</strong> on campus.<br/>
+    A QR code is hidden there — find it and scan it to begin Round 4.<br/><br/>
+    <span style="color:var(--yellow);font-size:0.72rem;">⚠ Do not share the QR with other teams.</span>
+  </div>
 </div>
 
 <!-- NAVBAR -->
@@ -192,13 +201,13 @@
   <div class="nav-links">
     <a href="https://crypto-crime-level1.vercel.app/tools.html" target="_blank">Tools</a>
   </div>
-  <div class="nav-status"><div class="status-dot"></div>LVL 3A/6</div>
+  <div class="nav-status"><div class="status-dot"></div>LVL 3B/6</div>
 </nav>
 
 <!-- TOP BAR -->
 <div class="top-bar" id="topBar" style="display:none;">
   <div style="font-size:0.62rem;color:var(--text-dim);letter-spacing:0.08em;">
-    LEVEL 3A / 6 &nbsp;·&nbsp; STEGANOGRAPHY
+    LEVEL 3B / 6 &nbsp;·&nbsp; OPTICAL ILLUSION
   </div>
   <div class="top-bar-tiles">
     <div class="mini-tile" id="tile0">?</div>
@@ -213,62 +222,61 @@
 <div class="level-wrap" id="levelWrap" style="display:none;padding-top:7rem;">
 
   <div class="progress-bar-wrap">
-    <div class="progress-label"><span>INVESTIGATION PROGRESS</span><span>LEVEL 3A / 6</span></div>
-    <div class="progress-track"><div class="progress-fill" style="width:41%"></div></div>
+    <div class="progress-label"><span>INVESTIGATION PROGRESS</span><span>LEVEL 3B / 6</span></div>
+    <div class="progress-track"><div class="progress-fill" style="width:50%"></div></div>
   </div>
 
   <div class="classified-banner">
     <div class="classified-stamp">CLASSIFIED</div>
-    <div class="level-indicator">FILE 003A OF 006 &nbsp;·&nbsp; STEGANOGRAPHY</div>
+    <div class="level-indicator">FILE 003B OF 006 &nbsp;·&nbsp; OPTICAL ILLUSION</div>
   </div>
 
   <div class="classified-file">
     <div class="file-header">
       <div class="file-meta">
-        <div class="file-id">CASE #MK-2601 &nbsp;·&nbsp; EVIDENCE FILE 03-A</div>
-        <div class="file-title">The Invisible Message</div>
+        <div class="file-id">CASE #MK-2601 &nbsp;·&nbsp; EVIDENCE FILE 03-B</div>
+        <div class="file-title">What You See vs. What Is</div>
       </div>
-      <div class="file-cipher-badge">STEGANOGRAPHY</div>
+      <div class="file-cipher-badge">OPTICAL ILLUSION</div>
     </div>
 
     <div class="file-body">
       <div class="file-section">
         <div class="file-section-label">Mission Briefing</div>
         <p class="briefing-text">
-          THE CRIMINAL doesn't always use codes. Sometimes, the message
-          <strong>hides inside the silence</strong> — tucked inside something
-          ordinary, invisible to the untrained eye.<br/><br/>
-          Our forensics team pulled this image from the criminal's encrypted drive.
-          It was flagged as <strong>evidence</strong> — nobody knows what it truly contains.<br/><br/>
+          You already decoded the hidden data inside this image. Good work.<br/><br/>
+          But THE CRIMINAL buried a <strong>second clue</strong> — not in the pixels,
+          not in the metadata — in the <strong>image itself</strong>.<br/><br/>
           <span style="color:var(--yellow);font-size:0.82rem;">
-            ⚠ Use the steganography decoder on the Tools page.
-            The hidden message will tell you exactly where to go next.
+            ⚠ Do NOT use the steganography tool this time.
+            <strong style="color:var(--text)">The answer is visible to the naked eye.</strong>
+            Look at the image carefully — there is a word hidden in the visual design.
           </span>
         </p>
       </div>
 
       <div class="file-section">
-        <div class="file-section-label">Intercepted Evidence Image</div>
+        <div class="file-section-label">The Same Image — Look Again</div>
         <div class="evidence-image-wrap">
           <img src="level3.png" alt="Evidence Image" class="evidence-image"
             onclick="window.open('level3.png','_blank')"/>
           <br/>
-          <a href="level3.png" download="evidence_file_03.png" class="btn btn-outline download-btn">
+          <a href="level3.png" download="evidence_file_03b.png" class="btn btn-outline download-btn">
             ↓ Download Image
           </a>
         </div>
         <p style="font-size:0.68rem;color:var(--text-dim);margin-top:0.75rem;line-height:1.7;">
-          ↳ Use the
-          <a href="https://crypto-crime-level1.vercel.app/tools.html" target="_blank" style="color:var(--cyan)">Steganography decoder</a>
-          on the Tools page to extract the hidden message from this image.
+          ↳ The location is hidden visually in the image — an optical illusion.
+          Look at the design itself, not the data.
+          <strong style="color:var(--cyan)">What word do you see?</strong>
         </p>
       </div>
 
       <div class="answer-section">
-        <div class="answer-label">// Submit the Location</div>
+        <div class="answer-label">// Submit the Hidden Location</div>
         <div class="answer-input-row">
           <input type="text" class="answer-input" id="answerInput"
-            placeholder="WHERE DOES IT LEAD?"
+            placeholder="WHAT DO YOU SEE?"
             autocomplete="off" spellcheck="false"/>
           <button class="btn btn-primary answer-submit" onclick="checkAnswer()">SUBMIT</button>
         </div>
@@ -305,11 +313,11 @@
   startBinaryRain(0.05);
 
   const VALID_IDS   = ["MK2601","MK2602","MK2603","MK2604","MK2605","MK2606","MK2607","MK2608","MK2609","MK2610","MK2611","MK2612","MK2613","MK2614","MK2615","MK2616","MK2617","MK2618","MK2619","MK2620"];
-  const CORRECT_ANS = "ROSE GARDEN";
+  const CORRECT_ANS = "MEDIA CENTRE";
   const LETTER      = "S";
   const HINTS = [
-    "Download the image and run it through the Steganography decoder on the Tools page. The hidden message is embedded in the image data.",
-    "The steganography tool will reveal a location name. That is your answer — type it exactly as it appears."
+    "Don't decode anything. The answer is written in the image visually — look at the shape, the pattern, the overall design.",
+    "It's an optical illusion. Relax your eyes or step back from the screen. A two-word location name should emerge from the image."
   ];
 
   let hintsUsed   = 0;
@@ -318,37 +326,28 @@
   let teamName    = localStorage.getItem("teamName");
 
   window.addEventListener("DOMContentLoaded", () => {
-    // Cross-domain: seed Level 1+2 letters so tiles show correctly
-    const existing = localStorage.getItem("collectedLetters");
-    let data = { row1: ["W","N"], row2: ["R","A"] };
-    if (existing) {
-      try {
-        const parsed = JSON.parse(existing);
-        // Only keep if it's the new structured format and has real data
-        if (parsed && !Array.isArray(parsed) && parsed.row1 && parsed.row1.length >= 2) {
-          data = parsed;
-        }
-      } catch(e) {}
-    }
-    saveStructuredLetters(data);
-
-    // Re-read teamId after syncFromURL may have set it
+    // Re-read after syncFromURL
     teamId   = localStorage.getItem("teamId");
     teamName = localStorage.getItem("teamName");
 
+    const currentLevel = localStorage.getItem("currentLevel");
+
+    // ── ANTI-SKIP: must have solved Part A ──
+    // Allow: "3B" (Part A done, Part B pending) OR "4"+ (fully done, revisiting)
+    const allowed = ["3B","4","4A","4B","5"];
+    if (!allowed.includes(currentLevel)) {
+      document.getElementById("blockedScreen").classList.add("show");
+      return; // stop all further setup
+    }
+
+    // currentLevel is correct — now check teamId
     if (!teamId) {
       document.getElementById("checkinScreen").style.display = "flex";
       document.getElementById("checkinId").addEventListener("keydown", e => {
         if (e.key === "Enter") doCheckin();
       });
     } else {
-      // If Part A already solved on this device, show overlay again (covers "3B" and beyond)
-      const cl = localStorage.getItem("currentLevel");
-      if (cl === "3B" || cl === "4" || cl === "4A" || cl === "4B" || cl === "5") {
-        document.getElementById("partUnlockScreen").classList.add("show");
-      } else {
-        showWelcome();
-      }
+      showWelcome();
     }
   });
 
@@ -375,7 +374,7 @@
     teamId   = id;
     teamName = id;
 
-    logToSheet({ teamId, teamName, level: "3A", letter: "—", action: "level_arrived" });
+    logToSheet({ teamId, teamName, level: "3B", letter: "—", action: "level_arrived" });
 
     document.getElementById("checkinScreen").style.display = "none";
     showWelcome();
@@ -412,8 +411,8 @@
     const splash = document.getElementById("welcomeSplash");
     splash.classList.add("hide");
     setTimeout(() => { splash.style.display = "none"; }, 500);
-    document.getElementById("mainNav").style.display  = "flex";
-    document.getElementById("topBar").style.display   = "flex";
+    document.getElementById("mainNav").style.display   = "flex";
+    document.getElementById("topBar").style.display    = "flex";
     document.getElementById("levelWrap").style.display = "flex";
     renderAllTiles();
   }
@@ -425,30 +424,42 @@
     const userAns  = input.value.trim().toUpperCase();
     if (!userAns) return;
 
+    // Trap: if they try the steg answer from Part A
+    if (userAns === "ROSE GARDEN") {
+      input.classList.remove("shake");
+      void input.offsetWidth;
+      input.classList.add("shake");
+      feedback.className   = "answer-feedback wrong";
+      feedback.textContent = "✗ You already found that one. This time — look at the image, not the data.";
+      setTimeout(() => input.classList.remove("shake"), 500);
+      return;
+    }
+
     if (userAns === CORRECT_ANS) {
       levelSolved = true;
       feedback.className   = "answer-feedback correct";
-      feedback.textContent = "✓ CORRECT. Signal decoded.";
+      feedback.textContent = "✓ CORRECT. You saw through the illusion.";
 
-      // Save S to row1[2]
+      // Save S to row2[2]
       const data = getStructuredLetters();
-      data.row1[2] = LETTER;
+      data.row2[2] = LETTER;
       saveStructuredLetters(data);
-      localStorage.setItem("currentLevel", "3B");
+      localStorage.setItem("currentLevel", "4");
 
       renderAllTiles();
 
-      logToSheet({ teamId, teamName, level: "3A", letter: LETTER, action: "part_a_complete" });
+      await logToSheet({ teamId, teamName, level: "3B", letter: LETTER, action: "level_complete" });
 
-      // Show full-screen overlay
-      document.getElementById("partUnlockScreen").classList.add("show");
+      setTimeout(() => {
+        document.getElementById("unlockScreen").classList.add("show");
+      }, 1000);
 
     } else {
       input.classList.remove("shake");
       void input.offsetWidth;
       input.classList.add("shake");
       feedback.className   = "answer-feedback wrong";
-      feedback.textContent = `→ Head to ${input.value.trim()} and look for the QR code there.`;
+      feedback.textContent = "✗ Incorrect. The answer is in the image itself — look at the visual design.";
       setTimeout(() => input.classList.remove("shake"), 500);
     }
   }
